@@ -1,9 +1,23 @@
 var chai      = require('chai'),
     assert    = require('assert'),
-    webSocket = require('../../lib/web-socket');
+    app       = {},
+    WebSocket = require('../../lib/web-socket');
 
 describe('webSocket', function () {
-  it('listens to a http server');
+  it('listens to a server', function (done) {
+    app.restify = require('restify').createServer();
+    var webSocket = new WebSocket(app);
+    
+    webSocket.listen(app.restify, function (server) { 
+      assert(server instanceof Object);
+      assert(server.server);
+      assert(server.server instanceof Object);
+      assert(app.socket);
+      assert(app.socket == server);
+
+      done();
+    });
+  });
 
   describe('sockets', function () {
     describe('on', function () {
