@@ -35,6 +35,6 @@
   ],
   "scripts": {
     "start": "node server.js",
-    "test": "mocha --reporter list test/**/*"
+    "test": "./node_modules/.bin/mocha --reporter list --recursive"
   }
 }
