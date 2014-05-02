@@ -1,11 +1,12 @@
 var chai      = require('chai'),
     assert    = require('assert'),
     restify   = require('restify'),
-    app       = {},
+    ioclient  = require('socket.io-client'),
     WebSocket = require('../../lib/web-socket');
 
 describe('webSocket', function () {
   it('listens to a server', function (done) {
+    var app = {};
     app.restify   = restify.createServer();
     var webSocket = new WebSocket(app);
     
@@ -20,6 +21,7 @@ describe('webSocket', function () {
   });
 
   it('gets an ip', function (done) {
+    var app = {};
     app.restify   = restify.createServer();
     var webSocket = new WebSocket(app);
 
@@ -35,6 +37,7 @@ describe('webSocket', function () {
   });
   
   it('gets a port', function (done) {
+    var app = {};
     app.restify   = restify.createServer();
     var webSocket = new WebSocket(app);
 
@@ -50,47 +53,58 @@ describe('webSocket', function () {
   });
 
   describe('sockets', function () {
-    var webSocket = new WebSocket(app),
-        ioclient  = require('socket.io-client');
-
-    app.restify = restify.createServer();
-    app.socket  = webSocket.listen(app.restify);
-
-    /*
-    if(namespace instanceof Object) {
-      options   = namespace;
-      delete namespace;
-    }
-
-    var address = server.address(),
-        url     = [ 'ws://', address.address,
-          ':', address.port, (namespace || '') ].join();
-    
-    return ioclient(url, options);
-     */
-
     describe('on', function () {
       describe('connection', function () {
-        /*
-        beforeEach(function () {
-          app.socket.sockets.on('connection', function (socket) {
-            app.socket.setup(socket);
-          });
-        });
-        */
+        it('adds new socket', function (done) {
+          var app       = {},
+              webSocket = new WebSocket(app);
 
-        /*
-        it('has an ip address', function (done) {
+          app.restify = restify.createServer();
+          app.socket  = webSocket.listen(app.restify);
+
           app.socket.on('listening', function () {
-            var incoming = client(app.socket, ioclient);
-            assert(incoming.ip);
-            assert(incoming.ip === app.socket.ip);
-            done();
+            var client = ioclient.connect(
+              'ws://' + app.socket.ip + ':' + app.socket.port
+            );
+
+            client.on('connect', function () {
+              assert(app.socket.roomClients[
+                client.socket.sessionid
+              ]);
+
+              done();
+            });
           });
 
           app.restify.listen();
         });
-        */
+
+        it('has an ip address', function (done) {
+          var app       = {},
+              webSocket = new WebSocket(app);
+
+          app.restify = restify.createServer();
+          app.socket  = webSocket.listen(app.restify);
+
+          app.socket.on('listening', function () {
+            assert(!app.socket.roomClients.length);
+
+            var client = ioclient.connect(
+              'ws://' + app.socket.ip + ':' + app.socket.port
+            );
+
+            client.on('connect', function () {
+              var roomClient = app.socket.roomClients[
+                client.socket.sessionid
+              ];
+
+              assert(roomClient.ip);
+              done();
+            });
+          });
+
+          app.restify.listen();
+        });
 
         it('logs the event');
 
