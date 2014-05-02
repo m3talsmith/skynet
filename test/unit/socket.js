@@ -4,16 +4,21 @@ var chai      = require('chai'),
     ioclient  = require('socket.io-client'),
     WebSocket = require('../../lib/web-socket');
 
+function initializeApp () {
+  var app       = {},
+      webSocket = new WebSocket(app);
+
+  app.restify = restify.createServer();
+  app.socket  = webSocket.listen(app.restify);
+  
+  return app;
+}
+
 describe('webSocket', function () {
   it('listens to a server', function (done) {
-    var app = {};
-    app.restify   = restify.createServer();
-    var webSocket = new WebSocket(app);
-    
-    app.socket = webSocket.listen(app.restify);
+    var app = initializeApp();
 
     app.socket.on('listening', function () {
-      console.log('socket listening');
       done();
     });
 
@@ -21,11 +26,7 @@ describe('webSocket', function () {
   });
 
   it('gets an ip', function (done) {
-    var app = {};
-    app.restify   = restify.createServer();
-    var webSocket = new WebSocket(app);
-
-    app.socket = webSocket.listen(app.restify);
+    var app = initializeApp();
 
     app.socket.on('listening', function () {
       assert(app.socket.ip);
@@ -37,11 +38,7 @@ describe('webSocket', function () {
   });
   
   it('gets a port', function (done) {
-    var app = {};
-    app.restify   = restify.createServer();
-    var webSocket = new WebSocket(app);
-
-    app.socket = webSocket.listen(app.restify);
+    var app = initializeApp();
 
     app.socket.on('listening', function () {
       assert(app.socket.port);
@@ -56,11 +53,7 @@ describe('webSocket', function () {
     describe('on', function () {
       describe('connection', function () {
         it('adds new socket', function (done) {
-          var app       = {},
-              webSocket = new WebSocket(app);
-
-          app.restify = restify.createServer();
-          app.socket  = webSocket.listen(app.restify);
+          var app = initializeApp();
 
           app.socket.on('listening', function () {
             var client = ioclient.connect(
@@ -80,11 +73,7 @@ describe('webSocket', function () {
         });
 
         it('has an ip address', function (done) {
-          var app       = {},
-              webSocket = new WebSocket(app);
-
-          app.restify = restify.createServer();
-          app.socket  = webSocket.listen(app.restify);
+          var app = initializeApp();
 
           app.socket.on('listening', function () {
             assert(!app.socket.roomClients.length);
@@ -106,7 +95,7 @@ describe('webSocket', function () {
           app.restify.listen();
         });
 
-        it('logs the event');
+        it('logs the event', function () {});
 
         describe('rate limit', function () {
           it('not exceeded');
