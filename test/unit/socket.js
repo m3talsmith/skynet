@@ -95,7 +95,21 @@ describe('webSocket', function () {
           app.restify.listen();
         });
 
-        it('logs the event', function () {});
+        it('logs the event', function (done) {
+          var app = initializeApp();
+
+          app.socket.on('listening', function () {
+            var client = ioclient.connect(
+              'ws://' + app.socket.ip + ':' + app.socket.port
+            );
+          });
+
+          app.socket.on('eventLogged', function () {
+            done();
+          });
+
+          app.restify.listen();
+        });
 
         describe('rate limit', function () {
           it('not exceeded');
