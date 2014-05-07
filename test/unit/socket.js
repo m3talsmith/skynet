@@ -72,29 +72,6 @@ describe('webSocket', function () {
           app.restify.listen();
         });
 
-        it('has an ip address', function (done) {
-          var app = initializeApp();
-
-          app.socket.on('listening', function () {
-            assert(!app.socket.roomClients.length);
-
-            var client = ioclient.connect(
-              'ws://' + app.socket.ip + ':' + app.socket.port
-            );
-
-            client.on('connect', function () {
-              var roomClient = app.socket.roomClients[
-                client.socket.sessionid
-              ];
-
-              assert(roomClient.ip);
-              done();
-            });
-          });
-
-          app.restify.listen();
-        });
-
         it('logs the event', function (done) {
           var app = initializeApp();
 
@@ -104,7 +81,7 @@ describe('webSocket', function () {
             );
           });
 
-          app.socket.on('eventLogged', function () {
+          app.socket.on('logged', function () {
             done();
           });
 
