@@ -29,3 +29,36 @@ Testing
 
 1. Set up a harness in mocha
 1. Unit test lib files
+
+Refactoring to middleware model
+-------------------------------
+
+In order to keep the complexity and length of server.js down, and to
+improve reuse, we are migrating this to a middleware model.
+
+Usage
+-----
+
+First we set up skynet and attach our middleware:
+
+``` javascript
+var socket = require('./lib/web-socket'),
+    config = require('./config'),
+    log    = require('./lib/log'),
+    skynet = require('./lib/skynet');
+
+skynet
+  .use(config)
+  .use(log)
+  .use(socket);
+```
+
+Then we can spin up our listeners with:
+
+``` javascript
+skynet.listen();
+```
+
+This will start all registered services added as middleware on their
+configured ports.
+

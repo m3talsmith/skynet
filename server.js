@@ -103,6 +103,20 @@ if(config.tls){
   https_server.pre(restify.pre.sanitizePath());
 }
 
+/* Refactoring to middleware model
+ * ===============================
+ *
+ * See REFACTORNOTES.md for more details and usage.
+ *
+ * var skynet    = require('./lib/skynet'),
+ *     oldSocket = require('./lib/old-socket'),
+ *     log       = require('./lib/log');
+ * 
+ * skynet
+ *   .use(log)
+ *   .use(oldSocket, server, https_server);
+ */
+
 // Setup websockets
 
 var io = socketio.listen(server);
