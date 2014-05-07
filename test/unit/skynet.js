@@ -67,4 +67,14 @@ describe('skynet', function () {
       assert(JSON.stringify(middleware.arguments[1]) === JSON.stringify(args[1]));
     });
   });
+
+  describe('#listen', function () {
+    it('emits listening to all middleware');
+    it('accepts options');
+    describe('options', function () {
+      it('provide alternative port for middleware listen');
+      it('provide alternative host for middleware listen');
+      it('provide alternative callback for middleware listen');
+    });
+  });
 });
