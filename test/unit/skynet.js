@@ -3,17 +3,17 @@ var mocha  = require('mocha'),
     path   = require('path');
 
 describe('skynet', function () {
+  var skynet;
+
+  beforeEach(function () {
+    skynet = require('../../lib/skynet');
+  });
+
+  afterEach(function () {
+    delete require.cache[path.join(process.cwd(), 'lib', 'skynet.js')];
+  });
+
   describe('#use', function () {
-    var skynet;
-
-    beforeEach(function () {
-      skynet = require('../../lib/skynet');
-    });
-
-    afterEach(function () {
-      delete require.cache[path.join(process.cwd(), 'lib', 'skynet.js')];
-    });
-
     it('requires an argument', function (done) {
       try {
         skynet.use();
@@ -68,13 +68,31 @@ describe('skynet', function () {
     });
   });
 
-  describe('#listen', function () {
-    it('emits listening to all middleware');
-    it('accepts options');
-    describe('options', function () {
-      it('provide alternative port for middleware listen');
-      it('provide alternative host for middleware listen');
-      it('provide alternative callback for middleware listen');
-    });
+  it('#listen runs each middleware', function (done) {
+    var boringMiddleware = function (app) {
+      app.bored = true;
+    };
+
+    var serverMiddleware = function (app, port) {
+      var http   = require('http'),
+          server = http.createServer();
+
+      server.on('listening', function () {
+        assert(app.bored);
+        assert(app.server);
+        server.close();
+        done();
+      });
+
+      app.server = server;
+
+      server.listen(port);
+    };
+
+    skynet
+      .use(boringMiddleware)
+      .use(serverMiddleware, 3000);
+
+    skynet.listen();
   });
 });
