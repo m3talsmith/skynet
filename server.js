@@ -107,35 +107,14 @@ if(config.tls){
  * ===============================
  *
  * See REFACTORNOTES.md for more details and usage.
- *
- * var skynet    = require('./lib/skynet'),
- *     oldSocket = require('./lib/old-socket'),
- *     log       = require('./lib/log');
- * 
- * skynet
- *   .use(log)
- *   .use(oldSocket, server, https_server);
  */
 
-// Setup websockets
+var skynet    = require('./lib/skynet'),
+    oldSocket = require('./lib/old-socket'),
+    log       = require('./lib/log');
 
-var io = socketio.listen(server);
-if(config.redis){
-  io.configure(function() {
-    return io.set("store", redis.createIoStore());
-  });
-}
-
-if(config.tls){
-  var ios = socketio.listen(https_server);
-
-  // TODO: Figure out why secure socket.io doesn't log to REDIS
-  // if(config.redis){
-    // ios.configure(function() {
-    //   return ios.set("store", redis.createIoStore());
-    // });
-  // };
-}
+skynet
+ .use(oldSocket, server, https_server, mqtt);
 
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser());
@@ -169,22 +148,7 @@ function cloneMessage(msg, device, fromUuid){
 }
 
 function sendToSocket(device, msg, callback){
-  var socketServer = device.secure ? ios : io;
-
-  if(socketServer){
-    if(callback){
-      socketServer.sockets.socket(device.socketid).emit('message', msg, function(results){
-        console.log('results', results);
-        try{
-          callback(results);
-        } catch (e){
-          console.log(e);
-        }
-      });
-    }else{
-      socketServer.sockets.in(device.uuid).emit('message', msg);
-    }
-  }
+  skynet.socket.sendToSocket(device, msg, callback);
 }
 
 
